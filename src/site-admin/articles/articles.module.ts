@@ -3,13 +3,13 @@ import { ArticlesService } from './services/articles.service';
 import { ArticlesController } from './articles.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Article, ArticleSchema } from './schemas/article.schema';
-import { MediaService } from './services/media.service';
+import { ArticleMediaService } from './services/article-media.service';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: Article.name, schema: ArticleSchema }]),
   ],
   controllers: [ArticlesController],
-  providers: [ArticlesService, MediaService],
+  providers: [ArticlesService, ArticleMediaService],
 })
 export class ArticlesModule {}

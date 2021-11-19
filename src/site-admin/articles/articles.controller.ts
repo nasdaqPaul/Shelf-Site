@@ -14,14 +14,14 @@ import {
 import { ArticlesService } from './services/articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
-import { MediaService } from './services/media.service';
+import { ArticleMediaService } from './services/article-media.service';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 
 @Controller('articles')
 export class ArticlesController {
   constructor(
     private readonly articlesService: ArticlesService,
-    private mediaService: MediaService,
+    private mediaService: ArticleMediaService,
   ) {}
 
   @Post()
@@ -64,6 +64,6 @@ export class ArticlesController {
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Param('id') id: string,
   ) {
-    return this.mediaService.saveImages(id, files);
+    await this.mediaService.saveImages(id, files);
   }
 }

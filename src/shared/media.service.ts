@@ -1,10 +1,9 @@
-import { Injectable } from '@nestjs/common';
-import * as fs from 'fs';
 import { ConfigService } from '@nestjs/config';
 import { join } from 'path';
+import * as fs from 'fs';
 
-@Injectable()
 export class MediaService {
+  protected folderName!: string;
   constructor(private configService: ConfigService) {}
 
   private writeFile(articleId: string, file: Express.Multer.File) {
@@ -13,6 +12,7 @@ export class MediaService {
     }
     const savePath = join(
       this.configService.get<string>('MEDIA_PATH'),
+      this.folderName,
       articleId,
     );
     return new Promise<void>((resolve, reject) => {

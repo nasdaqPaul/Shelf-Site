@@ -6,7 +6,7 @@ import * as os from 'os';
 async function bootstrap() {
   console.log(process.cwd());
   const app = await NestFactory.create(AppModule);
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
   await app.listen(3000);
 }
 bootstrap();
