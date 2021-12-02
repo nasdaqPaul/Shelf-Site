@@ -1,25 +1,26 @@
 import { Injectable } from '@nestjs/common';
-import { CreateArticleDto } from '../dto/create-article.dto';
-import { UpdateArticleDto } from '../dto/update-article.dto';
+import { CreateArticleDto } from './dto/create-article.dto';
+import { UpdateArticleDto } from './dto/update-article.dto';
 import { Model } from 'mongoose';
-import { Article, ArticleDocument } from '../schemas/article.schema';
+import { Article, ArticleDocument } from './schemas/article.schema';
 import { InjectModel } from '@nestjs/mongoose';
-import { ConfigService } from '@nestjs/config';
-import { CreateMediaDir } from '../../../shared/createMediaDir';
+import StorageService from '../services/storage.service';
+import { join } from 'path';
 
 @Injectable()
-export class ArticlesService extends CreateMediaDir {
+export class ArticlesService {
+  private dirName = 'articles';
+
   constructor(
     @InjectModel(Article.name) private articleModel: Model<ArticleDocument>,
-    configService: ConfigService,
-  ) {
-    super(configService);
-    this.folderName = 'articles';
-  }
+    private storageService: StorageService,
+  ) {}
 
   async create(createArticleDto: CreateArticleDto) {
     await this.articleModel.create(createArticleDto);
-    await this.createMediaDir(createArticleDto.id);
+    await this.storageService.createMediaDir(
+      join(this.dirName, createArticleDto.id),
+    );
   }
 
   findAll() {
@@ -36,6 +37,6 @@ export class ArticlesService extends CreateMediaDir {
 
   async remove(id: string) {
     await this.articleModel.findByIdAndRemove(id);
-    await this.deleteMediaDir(id);
+    await this.storageService.deleteMediaDir(join(this.dirName, id));
   }
 }

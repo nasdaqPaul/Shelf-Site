@@ -8,20 +8,25 @@ import {
   Param,
   Patch,
   Post,
+  Response,
+  StreamableFile,
   UploadedFiles,
   UseInterceptors,
 } from '@nestjs/common';
-import { ArticlesService } from './services/articles.service';
+import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
 import { UpdateArticleDto } from './dto/update-article.dto';
-import { ArticleMediaService } from './services/article-media.service';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
+import StorageService from '../services/storage.service';
+import { join } from 'path';
 
 @Controller('articles')
 export class ArticlesController {
+  private mediaDirName = 'articles';
+
   constructor(
     private readonly articlesService: ArticlesService,
-    private mediaService: ArticleMediaService,
+    private storageService: StorageService,
   ) {}
 
   @Post()
@@ -30,7 +35,9 @@ export class ArticlesController {
       await this.articlesService.create(createArticleDto);
     } catch (e) {
       if (e.code === 11000) {
-        throw new ConflictException('Article with already exits');
+        throw new ConflictException(
+          `An article with ID '${createArticleDto.id}' already exists in this site.`,
+        );
       }
     }
   }
@@ -60,10 +67,28 @@ export class ArticlesController {
 
   @Post(':id/media')
   @UseInterceptors(AnyFilesInterceptor())
-  async uploadFile(
+  async uploadFiles(
     @UploadedFiles() files: Array<Express.Multer.File>,
     @Param('id') id: string,
   ) {
-    await this.mediaService.saveImages(id, files);
+    await this.storageService.saveFiles(join(this.mediaDirName, id), files);
+  }
+
+  @Get(':id/media/:fileName')
+  async getFile(
+    @Param('id') id: string,
+    @Param('fileName') fileName: string,
+    @Response({ passthrough: true }) res,
+  ) {
+    const fileReadStream = await this.storageService.getFileReadStream(
+      join(this.mediaDirName, id),
+      fileName,
+    );
+
+    res.set({
+      'Content-Type': 'image/' + fileReadStream.fileExtension,
+      'Content-Disposition': 'inline',
+    });
+    return new StreamableFile(fileReadStream.readStream);
   }
 }

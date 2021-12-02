@@ -1,25 +1,25 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSeriesDto } from '../dto/create-series.dto';
-import { UpdateSeriesDto } from '../dto/update-series.dto';
+import { CreateSeriesDto } from './dto/create-series.dto';
+import { UpdateSeriesDto } from './dto/update-series.dto';
 import { InjectModel } from '@nestjs/mongoose';
-import { Series, SeriesDocument } from '../schemas/series.schema';
+import { Series, SeriesDocument } from './schemas/series.schema';
 import { Model } from 'mongoose';
-import { CreateMediaDir } from '../../../shared/createMediaDir';
-import { ConfigService } from '@nestjs/config';
+import { join } from 'path';
+import StorageService from '../services/storage.service';
 
 @Injectable()
-export class SeriesService extends CreateMediaDir {
+export class SeriesService {
+  private mediaDirName = 'series';
   constructor(
     @InjectModel(Series.name) private seriesModel: Model<SeriesDocument>,
-    configService: ConfigService,
-  ) {
-    super(configService);
-    this.folderName = 'series';
-  }
+    private storageService: StorageService,
+  ) {}
 
   async create(createSeriesDto: CreateSeriesDto) {
     await this.seriesModel.create(createSeriesDto);
-    await this.createMediaDir(createSeriesDto.id);
+    await this.storageService.createMediaDir(
+      join(this.mediaDirName, createSeriesDto.id),
+    );
   }
 
   findAll() {
@@ -36,6 +36,6 @@ export class SeriesService extends CreateMediaDir {
 
   async remove(id: string) {
     await this.seriesModel.deleteOne({ id });
-    await this.deleteMediaDir(id);
+    await this.storageService.deleteMediaDir(join(this.mediaDirName, id));
   }
 }
