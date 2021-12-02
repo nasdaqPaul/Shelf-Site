@@ -11,7 +11,8 @@ export class AuthService {
 
   async validate(username: string, password: string) {
     const user = await this.usersService.findUserByUsername(username);
-    if (user && user.password === password) {
+    // @ts-ignore
+    if (user && await user.comparePassword(password)) {
       return user;
     }
     return null;
