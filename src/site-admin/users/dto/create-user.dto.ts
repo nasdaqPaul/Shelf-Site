@@ -1,4 +1,5 @@
-import { IsAlphanumeric, IsEmail, IsString } from 'class-validator';
+import { IsAlphanumeric, IsEmail, IsEnum, IsString } from 'class-validator';
+import { UserRole } from '../schemas/user.schema';
 
 export class CreateUserDto {
   @IsEmail()
@@ -7,4 +8,6 @@ export class CreateUserDto {
   username: string;
   @IsAlphanumeric()
   password;
+  @IsEnum(UserRole)
+  role: UserRole
 }

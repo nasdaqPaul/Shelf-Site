@@ -9,7 +9,7 @@ import {
   Post,
   Response,
   StreamableFile,
-  UploadedFiles,
+  UploadedFiles, UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { SeriesService } from './series.service';
@@ -18,7 +18,9 @@ import { UpdateSeriesDto } from './dto/update-series.dto';
 import { join } from 'path';
 import StorageService from '../services/storage.service';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('series')
 export class SeriesController {
   private mediaDirName = 'series';

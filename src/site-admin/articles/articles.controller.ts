@@ -11,6 +11,7 @@ import {
   Response,
   StreamableFile,
   UploadedFiles,
+  UseGuards,
   UseInterceptors,
 } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
@@ -19,7 +20,12 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import StorageService from '../services/storage.service';
 import { join } from 'path';
+import { AuthGuard } from '@nestjs/passport';
+import { Roles, RolesGuard } from '../../auth/guards/roles-guard';
+import { UserRole } from '../users/schemas/user.schema';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
+@UseGuards(JwtAuthGuard)
 @Controller('articles')
 export class ArticlesController {
   private mediaDirName = 'articles';
@@ -27,8 +33,11 @@ export class ArticlesController {
   constructor(
     private readonly articlesService: ArticlesService,
     private storageService: StorageService,
-  ) {}
+  ) {
+  }
 
+  @Roles(UserRole.Admin, UserRole.Author)
+  @UseGuards(RolesGuard)
   @Post()
   async create(@Body() createArticleDto: CreateArticleDto) {
     try {
@@ -42,6 +51,9 @@ export class ArticlesController {
     }
   }
 
+  @Roles(UserRole.Admin, UserRole.Author)
+  @UseGuards(RolesGuard)
+  @UseGuards(AuthGuard('jwt'))
   @Get()
   async findAll() {
     return this.articlesService.findAll();
