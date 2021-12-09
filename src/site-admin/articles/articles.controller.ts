@@ -25,7 +25,7 @@ import { Roles, RolesGuard } from '../../auth/guards/roles-guard';
 import { UserRole } from '../users/schemas/user.schema';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @Controller('articles')
 export class ArticlesController {
   private mediaDirName = 'articles';
@@ -51,9 +51,7 @@ export class ArticlesController {
     }
   }
 
-  @Roles(UserRole.Admin, UserRole.Author)
-  @UseGuards(RolesGuard)
-  @UseGuards(AuthGuard('jwt'))
+
   @Get()
   async findAll() {
     return this.articlesService.findAll();

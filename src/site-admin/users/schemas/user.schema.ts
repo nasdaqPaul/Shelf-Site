@@ -1,10 +1,15 @@
-import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Prop, raw, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import * as bcrypt from 'bcrypt';
 
 export enum UserRole {
   Admin = 'admin',
   Author = 'author'
+}
+
+interface UserProfile {
+  firstName: string
+  lastName: string
 }
 
 @Schema()
@@ -17,9 +22,14 @@ export class User {
   password: string;
   @Prop({
     type: String,
-    enum: UserRole
+    enum: UserRole,
   })
   role: UserRole;
+  @Prop(raw({
+    firstName: String,
+    lastName: String
+  }))
+  profile: UserProfile
 
 }
 
