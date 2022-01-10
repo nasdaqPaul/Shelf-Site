@@ -13,6 +13,7 @@ import {
   UploadedFiles,
   UseGuards,
   UseInterceptors,
+  Request
 } from '@nestjs/common';
 import { ArticlesService } from './articles.service';
 import { CreateArticleDto } from './dto/create-article.dto';
@@ -20,7 +21,6 @@ import { UpdateArticleDto } from './dto/update-article.dto';
 import { AnyFilesInterceptor } from '@nestjs/platform-express';
 import StorageService from '../services/storage.service';
 import { join } from 'path';
-import { AuthGuard } from '@nestjs/passport';
 import { Roles, RolesGuard } from '../../auth/guards/roles-guard';
 import { UserRole } from '../users/schemas/user.schema';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
@@ -38,10 +38,12 @@ export class ArticlesController {
 
   @Roles(UserRole.Admin, UserRole.Author)
   @UseGuards(RolesGuard)
+  @UseGuards(JwtAuthGuard)
   @Post()
-  async create(@Body() createArticleDto: CreateArticleDto) {
+  async create(@Body() createArticleDto: CreateArticleDto, @Request() req) {
+    const user = req.user;
     try {
-      await this.articlesService.create(createArticleDto);
+      await this.articlesService.create(user, createArticleDto);
     } catch (e) {
       if (e.code === 11000) {
         throw new ConflictException(

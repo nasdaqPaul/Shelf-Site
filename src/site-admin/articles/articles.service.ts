@@ -16,15 +16,15 @@ export class ArticlesService {
     private storageService: StorageService,
   ) {}
 
-  async create(createArticleDto: CreateArticleDto) {
-    await this.articleModel.create(createArticleDto);
+  async create(author: any, createArticleDto: CreateArticleDto) {
+    await this.articleModel.create({author: author.id, ...createArticleDto});
     await this.storageService.createMediaDir(
       join(this.dirName, createArticleDto.id),
     );
   }
 
   findAll() {
-    return this.articleModel.find({}, { __v: 0 });
+    return this.articleModel.find({}, { __v: 0 }).populate({path: 'author', model: 'User'});
   }
 
   findOne(id: string) {

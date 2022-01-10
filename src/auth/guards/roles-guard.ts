@@ -19,13 +19,12 @@ export class RolesGuard implements CanActivate {
       context.getHandler(),
       context.getClass(),
     ]);
-    // TODO: This if statement is not really required since the RolesGuard is no longer
+    // TODO: This if statement is not really required since the RolesGuard is no longer a global guard
     if (!requiredRoles) {
       return true;
     }
 
     const req = context.switchToHttp().getRequest();
-    console.log(req.user);
     return requiredRoles.includes(req.user.role);
   }
 }

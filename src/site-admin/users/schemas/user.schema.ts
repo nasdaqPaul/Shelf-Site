@@ -34,7 +34,13 @@ export class User {
 }
 
 export type UserDocument = User & Document;
-export const UserSchema = SchemaFactory.createForClass(User);
+export const UserSchema = SchemaFactory.createForClass(User).set('toJSON', {
+  transform: (doc, ret) => {
+    delete ret.password;
+    ret.id = ret._id;
+    delete ret._id;
+  }
+});
 
 UserSchema.pre('save', async function(next) {
   let user = this;

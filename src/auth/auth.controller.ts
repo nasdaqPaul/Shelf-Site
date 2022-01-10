@@ -10,6 +10,15 @@ export class AuthController {
   @UseGuards(AuthGuard('local'))
   @Post('login')
   async login(@Request() req) {
-    return this.authService.createToken(req.user);
+    const user = req.user;
+    const accessToken = await this.authService.createToken(user);
+
+    return {
+      accessToken,
+      user: {
+        primaryEmail: user.email,
+        ...user.profile,
+      },
+    };
   }
 }

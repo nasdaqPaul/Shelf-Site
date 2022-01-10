@@ -1,5 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
+import { User } from '../../users/schemas/user.schema';
+import * as mongoose from 'mongoose';
 
 @Schema({ _id: false })
 export class Article {
@@ -17,6 +19,10 @@ export class Article {
   created: Date;
   @Prop()
   updated: Date;
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId, ref: 'Author'
+  })
+  author: User;
 }
 
 export type ArticleDocument = Article & Document;
